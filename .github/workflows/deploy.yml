@@ -1,0 +1,60 @@
+name: Deploy to Railway
+
+# Optional Railway deploy workflow for template users.
+# Railway builds the uploaded source server-side using railway.json
+# (buildCommand: pnpm build -> startCommand: node .output/server/index.mjs).
+#
+# Required setup (one time):
+#   1. Railway dashboard -> project -> Settings -> Tokens ->
+#      create a Project Token scoped to the "production" environment.
+#   2. GitHub repo -> Settings -> Secrets and variables -> Actions ->
+#      New repository secret named RAILWAY_TOKEN with that token's value.
+#   3. Run this workflow manually, or add a push trigger for your deployment branch.
+# A project-scoped token fixes the project and environment; --service picks the service.
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: railway-deploy
+  cancel-in-progress: false # let an in-flight deploy finish before the next starts
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --ci --service web
+
+      # `railway up --ci` streams BUILD logs only and its exit code does not
+      # reliably reflect deployment (container/healthcheck) failure — verify
+      # the deployment actually went ACTIVE before calling the job green.
+      # Railway occasionally throws transient "Failed to create deployment"
+      # container-creation errors; a red run here usually just needs a re-run.
+      - name: Verify deployment is live
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          for i in $(seq 1 30); do
+            STATUS=$(railway deployment list --service web --limit 1 --json | jq -r '.[0].status')
+            echo "poll $i: $STATUS"
+            case "$STATUS" in
+              SUCCESS) echo "Deployment is live."; exit 0 ;;
+              FAILED|CRASHED) echo "Deployment $STATUS — check the Railway dashboard (often a transient container-creation error; re-run this workflow)."; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "Timed out waiting for deployment to become ACTIVE."; exit 1

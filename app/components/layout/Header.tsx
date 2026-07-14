@@ -1,0 +1,80 @@
+import { AgentToggleButton, useT } from "@agent-native/core/client";
+import { IconMenu2 } from "@tabler/icons-react";
+import { useLocation } from "react-router";
+
+import { APP_TITLE } from "@/lib/app-config";
+
+import { useHeaderTitle, useHeaderActions } from "./HeaderActions";
+import { ProfileSwitcher } from "./ProfileSwitcher";
+
+const pageTitleKeys: Record<string, string> = {
+  "/": "navigation.chat",
+  "/observability": "navigation.observability",
+  "/settings": "navigation.settings",
+};
+
+function resolveTitle(pathname: string, t: (key: string) => string): string {
+  if (pageTitleKeys[pathname]) return t(pageTitleKeys[pathname]);
+  if (pathname.startsWith("/extensions")) return t("navigation.extensions");
+  return APP_TITLE;
+}
+
+/** Finance pages where the profile switcher makes sense — not settings/observability/etc. */
+const FINANCE_PATH_PREFIXES = [
+  "/dashboard",
+  "/transactions",
+  "/recurring",
+  "/rules",
+  "/runway",
+  "/plans",
+  "/budgets",
+  "/categories",
+  "/accounts",
+  "/views",
+  "/connect",
+  "/import",
+  "/spending",
+  "/projections",
+];
+
+function showsProfileSwitcher(pathname: string): boolean {
+  return FINANCE_PATH_PREFIXES.some((p) => pathname.startsWith(p));
+}
+
+interface HeaderProps {
+  onOpenMobileSidebar?: () => void;
+}
+
+export function Header({ onOpenMobileSidebar }: HeaderProps) {
+  const location = useLocation();
+  const t = useT();
+  const title = useHeaderTitle();
+  const actions = useHeaderActions();
+
+  return (
+    <header className="flex h-12 items-center gap-3 border-b border-border bg-background px-4 lg:px-6 shrink-0">
+      {onOpenMobileSidebar && (
+        <button
+          type="button"
+          onClick={onOpenMobileSidebar}
+          aria-label={t("navigation.openNavigation")}
+          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent md:hidden"
+        >
+          <IconMenu2 className="h-4 w-4" />
+        </button>
+      )}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {title ?? (
+          <h1 className="text-lg font-semibold tracking-tight truncate">
+            {resolveTitle(location.pathname, t)}
+          </h1>
+        )}
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {showsProfileSwitcher(location.pathname) ? <ProfileSwitcher /> : null}
+        {actions}
+        <AgentToggleButton />
+      </div>
+    </header>
+  );
+}
