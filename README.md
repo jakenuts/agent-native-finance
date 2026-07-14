@@ -27,7 +27,7 @@ need to bypass login while building.
 To scaffold from this public template:
 
 ```bash
-npx @agent-native/core@latest create my-finance --template github:your-org/agent-native-finance
+npx @agent-native/core@latest create my-finance --template github:jakenuts/agent-native-finance
 ```
 
 ## Useful Commands
@@ -46,8 +46,8 @@ For profile-scoped work, `profile-audit` should return an empty
 ## Environment
 
 Copy `.env.example` for local values. Real secrets belong in local `.env`,
-Nisse project environment variables, GitHub Actions secrets, and Railway
-variables. Do not commit real keys or token values.
+GitHub Actions secrets, and your deployment provider's environment variables.
+Do not commit real keys or token values.
 
 Common production variables:
 
@@ -79,10 +79,3 @@ This repo includes:
 - `.github/workflows/deploy.yml` as a manual Railway deploy workflow. Add your
   own push trigger after configuring `RAILWAY_TOKEN`.
 - `netlify.toml` for Netlify builds.
-
-## Nisse Setup
-
-Nisse runs `nisse-setup.sh` from the repo root when a sandbox starts. The
-script installs dependencies with the pinned pnpm version and ensures the
-Railway CLI is available for agents that have a `RAILWAY_TOKEN` in their
-environment.

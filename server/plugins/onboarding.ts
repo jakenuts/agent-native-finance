@@ -4,7 +4,7 @@
  * Compose the framework onboarding plugin so the built-in setup routes/default
  * steps stay mounted, then add app-specific provider steps. Values saved by
  * these forms land in Agent Native scoped secrets; runtime helpers fall back to
- * deployment env vars for Railway/Nisse/CI.
+ * deployment env vars for local development, CI, and hosted deployments.
  */
 import {
   createOnboardingPlugin,

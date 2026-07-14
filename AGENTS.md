@@ -17,8 +17,8 @@ contract.
 - Use Drizzle query builders or parameterized SQL. Do not concatenate user
   input into SQL.
 - Keep durable state in SQL. Do not add tracked runtime data files.
-- Secrets belong in setup scoped secrets, local `.env`, Nisse env vars, GitHub
-  Actions secrets, or deploy-provider env vars. Never commit real values.
+- Secrets belong in setup scoped secrets, local `.env`, GitHub Actions secrets,
+  or deploy-provider env vars. Never commit real values.
 - Optional providers must work as optional providers. The app should start with
   no Plaid or Recurly keys configured.
 
