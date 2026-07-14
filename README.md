@@ -5,8 +5,7 @@ banking data from Plaid, models recurring obligations and payment plans, tracks
 projected income, and exposes the same operations to the UI and in-app agent
 through Agent Native actions.
 
-It is designed to run as a standalone app today and remain compatible with a
-future Agent Native multi-app workspace.
+<img width="1655" height="1358" alt="image" src="https://github.com/user-attachments/assets/ec51eb21-9431-46d4-b0f5-c16a8567b0c9" />
 
 ## Local Setup
 
